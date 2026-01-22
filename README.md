@@ -12,3 +12,37 @@
 | `/api/reports` | GET | Query: `?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` | `{ totalExpense, categoryWise, monthlySummary }` | Generate expense analysis reports |
 | `/api/health` | GET | - | `{ status: "ok" }` | Test backend server is running |
 | `/api/logout` | POST (optional) | - | `{ message: "Logged out" }` | Frontend token clearing (no DB needed) |
+
+
+# Files & Their Purpose
+
+### server.js
+- Starts the backend server
+- Listens on a port (default 5000)
+- Entry point of backend
+
+### app.js
+- Configures Express app
+- Enables JSON parsing and CORS
+- Connects API routes (`/api/auth`, `/api/upload`, `/api/expenses`, `/api/reports`)
+
+### routes/ → Defines the endpoints for your APIs
+- **auth.routes.js** → login, register, get profile
+- **upload.routes.js** → upload PDF, get uploaded file
+- **expense.routes.js** → get all expenses
+- **report.routes.js** → get reports / analysis
+
+### controllers/ → Contains the logic for each route
+- Example: `auth.controller.js` → creates JWT for login
+- Example: `upload.controller.js` → stores PDF and returns upload ID
+
+### middlewares/auth.middleware.js → Protects certain routes
+- Checks if user has a valid JWT token
+- Only allows logged-in users to access protected APIs
+
+### uploads/pdfs/ → Folder to store uploaded PDF files
+
+### package.json → Lists dependencies and scripts
+- Run backend: `npm run dev`
+
+### .env → Stores environment variables
