@@ -1,0 +1,115 @@
+{
+  "info": {
+    "_postman_id": "nora-api-collection",
+    "name": "Nora API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Register User",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{BASE_URL}}/auth/register", "host": ["{{BASE_URL}}"], "path": ["auth","register"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Login User",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{BASE_URL}}/auth/login", "host": ["{{BASE_URL}}"], "path": ["auth","login"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Create Contact",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{BASE_URL}}/contacts", "host": ["{{BASE_URL}}"], "path": ["contacts"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"company_name\": \"Example Corp\",\n  \"category\": \"customer_vendor\",\n  \"language\": \"en\",\n  \"currency\": \"CAD\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Get Contacts",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{BASE_URL}}/contacts", "host": ["{{BASE_URL}}"], "path": ["contacts"] }
+      }
+    },
+    {
+      "name": "Create Invoice",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{BASE_URL}}/invoices", "host": ["{{BASE_URL}}"], "path": ["invoices"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contact_id\": 1,\n  \"number\": \"100\",\n  \"date\": \"2026-01-21\",\n  \"due_date\": \"2026-02-20\",\n  \"currency\": \"CAD\",\n  \"items\": [\n    {\n      \"description\": \"Consulting Services\",\n      \"quantity\": 1,\n      \"unit_price\": 100.0,\n      \"taxes\": [\"TPS\",\"TVP\"]\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "Create Expense",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{BASE_URL}}/expenses", "host": ["{{BASE_URL}}"], "path": ["expenses"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"date\": \"2026-01-21\",\n  \"category_id\": 5,\n  \"vendor_name\": \"Amazon\",\n  \"amount\": 50.0,\n  \"currency\": \"CAD\",\n  \"tax_amount\": 6.5,\n  \"is_paid\": true,\n  \"description\": \"Office Supplies\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Log Time Worked",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{BASE_URL}}/time_worked", "host": ["{{BASE_URL}}"], "path": ["time_worked"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contact_id\": 1,\n  \"date\": \"2026-01-21\",\n  \"hours\": 8,\n  \"minutes\": 0,\n  \"description\": \"API Documentation Work\"\n}"
+        }
+      }
+    }
+  ]
+}
