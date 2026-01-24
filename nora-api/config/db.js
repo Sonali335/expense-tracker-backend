@@ -1,69 +1,65 @@
-const sqlite3 = require("sqlite3").verbose();
-const db = new sqlite3.Database(":memory:"); // Replace with DynamoDB later
+// DynamoDB Configuration
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBDocumentClient } = require("@aws-sdk/lib-dynamodb");
 
-db.serialize(() => {
-  // Users
-  db.run(`CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE,
-    password TEXT
-  )`);
+// Initialize DynamoDB client configuration
+const dynamoConfig = {
+  region: process.env.AWS_REGION || "us-east-1",
+};
 
-  // Contacts
-  db.run(`CREATE TABLE contacts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    full_name TEXT,
-    email TEXT,
-    company_name TEXT,
-    category TEXT,
-    language TEXT,
-    currency TEXT,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP
-  )`);
+// Add credentials if provided (for local development or explicit credentials)
+if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+  dynamoConfig.credentials = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  };
+}
 
-  // Invoices
-  db.run(`CREATE TABLE invoices (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    contact_id INTEGER,
-    number TEXT,
-    date TEXT,
-    due_date TEXT,
-    currency TEXT,
-    total REAL DEFAULT 0,
-    status TEXT DEFAULT 'draft'
-  )`);
+// For local DynamoDB (DynamoDB Local)
+if (process.env.DYNAMODB_ENDPOINT) {
+  dynamoConfig.endpoint = process.env.DYNAMODB_ENDPOINT;
+  // Use dummy credentials for local DynamoDB
+  if (!dynamoConfig.credentials) {
+    dynamoConfig.credentials = {
+      accessKeyId: "local",
+      secretAccessKey: "local",
+    };
+  }
+}
 
-  db.run(`CREATE TABLE invoice_items (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    invoice_id INTEGER,
-    description TEXT,
-    quantity INTEGER,
-    unit_price REAL,
-    taxes TEXT
-  )`);
+// Initialize DynamoDB client
+let client;
+let docClient;
 
-  // Expenses
-  db.run(`CREATE TABLE expenses (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    date TEXT,
-    category_id INTEGER,
-    vendor_name TEXT,
-    amount REAL,
-    currency TEXT,
-    tax_amount REAL,
-    is_paid INTEGER,
-    description TEXT
-  )`);
+try {
+  client = new DynamoDBClient(dynamoConfig);
+  // Create DynamoDB Document Client for simplified JSON operations
+  docClient = DynamoDBDocumentClient.from(client);
+  console.log("DynamoDB client initialized successfully");
+} catch (error) {
+  console.error("Error initializing DynamoDB client:", error.message);
+  console.warn("Server will start but DynamoDB operations will fail until configured");
+  // Create a dummy client to prevent crashes
+  client = new DynamoDBClient(dynamoConfig);
+  docClient = DynamoDBDocumentClient.from(client);
+}
 
-  // Time Tracking
-  db.run(`CREATE TABLE time_worked (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    contact_id INTEGER,
-    date TEXT,
-    hours INTEGER,
-    minutes INTEGER,
-    description TEXT
-  )`);
-});
+// Table names from environment variables (with defaults)
+const TABLES = {
+  USERS: process.env.DYNAMODB_TABLE_USERS || "nora-users",
+  CONTACTS: process.env.DYNAMODB_TABLE_CONTACTS || "nora-contacts",
+  INVOICES: process.env.DYNAMODB_TABLE_INVOICES || "nora-invoices",
+  EXPENSES: process.env.DYNAMODB_TABLE_EXPENSES || "nora-expenses",
+  TIME_WORKED: process.env.DYNAMODB_TABLE_TIME_WORKED || "nora-time-worked",
+};
 
-module.exports = db;
+// Helper function to generate unique ID (replaces SQLite AUTOINCREMENT)
+function generateId() {
+  return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+}
+
+module.exports = {
+  docClient,
+  TABLES,
+  generateId,
+};
